@@ -52,8 +52,8 @@ class Model(object):
         """
         m1_speed = 0
         m2_speed = 0
-        m1_speed = (linear_speed - rotational_speed) * (self.l / 2)
-        m2_speed = (linear_speed + rotational_speed) * (self.l / 2) 
+        m1_speed = linear_speed + (self.l * rotational_speed) / 2
+        m2_speed = linear_speed - (self.l * rotational_speed) / 2 
         return m1_speed, m2_speed
 
     def dk(self):
@@ -83,13 +83,12 @@ class Model(object):
         """
         # Going from wheel speeds to robot speed
         linear_speed, rotation_speed = self.dk()
-
-        # TODO
-        dx = linear_speed * dt
-        dtetha = rotation_speed * dt
+        dx = linear_speed * dt * math.cos(self.theta + rotation_speed)
+        dy = linear_speed * dt * math.sin(self.theta + rotation_speed)
+        dtheta = rotation_speed * dt
 
         # Updating the robot position
         self.x = self.x + dx
-        self.y = self.y + 0  
-        self.theta = self.theta + dtetha
+        self.y = self.y + dy
+        self.theta = self.theta + dtheta
 
