@@ -50,8 +50,7 @@ class Model(object):
         Returns:
             float -- Speed of motor1 (m/s), speech of motor2 (m/s)
         """
-        m1_speed = 0
-        m2_speed = 0
+
         m1_speed = linear_speed + (self.l * rotational_speed) / 2
         m2_speed = linear_speed - (self.l * rotational_speed) / 2 
         return m1_speed, m2_speed
@@ -67,8 +66,7 @@ class Model(object):
         Returns:
             float -- linear speed (m/s), rotational speed (rad/s)
         """
-        linear_speed = 0
-        rotation_speed = 0
+
         linear_speed = (self.m1.speed + self.m2.speed)/2
         rotation_speed = (self.m1.speed - self.m2.speed)/ self.l
         return linear_speed, rotation_speed
@@ -83,12 +81,15 @@ class Model(object):
         """
         # Going from wheel speeds to robot speed
         linear_speed, rotation_speed = self.dk()
-        dx = linear_speed * dt * math.cos(self.theta + rotation_speed)
-        dy = linear_speed * dt * math.sin(self.theta + rotation_speed)
-        dtheta = rotation_speed * dt
 
+        #updating robot position (dx, dy ,dtheta)
+        dp = linear_speed * dt          
+        dtheta = rotation_speed * dt
+        dx = dp * math.sin(dtheta) / dtheta 
+        dy = dp * (math.cos(dtheta) - 1) / dtheta
+        
         # Updating the robot position
-        self.x = self.x + dx
-        self.y = self.y + dy
+        self.x = self.x + dx * math.cos(self.theta) - dy * math.sin(self.theta)
+        self.y = self.y + dx * math.sin(self.theta) + dy * math.cos(self.theta)
         self.theta = self.theta + dtheta
 
